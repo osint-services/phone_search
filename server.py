@@ -43,6 +43,12 @@ class CallerNameResult(BaseModel):
     error: Optional[str] = None
 
 
+@app.get("/healthz")
+def healthz() -> dict[str, str]:
+    """Simple liveness endpoint for container health probes."""
+    return {"status": "ok"}
+
+
 @app.get("/lookup/caller-name", response_model=CallerNameResult)
 def lookup_caller_name(
     phone_number: str = Query(..., description="Phone number in E.164 format, e.g. +18135551212"),
