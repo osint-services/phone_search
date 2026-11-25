@@ -6,14 +6,14 @@ A small FastAPI microservice that resolves caller name information for a phone n
 This service exposes a single endpoint to look up caller name metadata for a phone number in E.164 format.
 
 ## Requirements
-- Python 3.9 or higher
-- Twilio account with Lookup API access
+- Python 3.11 or newer
+- Twilio account with Lookup API access for live caller-name requests
 
 ## Environment Variables
 - `TWILIO_ACCOUNT_SID`
 - `TWILIO_AUTH_TOKEN`
 
-The service will fail to start if either environment variable is missing.
+The service starts without Twilio credentials. `GET /healthz` reports liveness, and caller-name requests return HTTP 503 until both credentials are set. For the bundled desktop app, configure them in Whoisit under **Integrations**.
 
 ## Tech Stack
 - FastAPI
@@ -28,7 +28,7 @@ The service will fail to start if either environment variable is missing.
    `source venv/bin/activate`
 3. Install dependencies:
    `pip install -r requirements.txt`
-4. Set your Twilio credentials:
+4. To enable live lookups, set your Twilio credentials:
    `export TWILIO_ACCOUNT_SID=your_sid`
    `export TWILIO_AUTH_TOKEN=your_token`
 5. Start the server:
@@ -36,7 +36,7 @@ The service will fail to start if either environment variable is missing.
 
 ## Endpoint
 - GET `/lookup/caller-name?phone_number={phone_number}`
-  - Query parameter: `phone_number` in E.164 format, e.g. `+18135551212`
+  - Query parameter: `phone_number` in E.164 format. Encode the leading `+` as `%2B` when writing a URL by hand.
   - Returns caller name metadata for the requested phone number.
 
 ## Example Response
