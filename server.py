@@ -25,12 +25,11 @@ app.add_middleware(
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 
-if not TWILIO_ACCOUNT_SID or not TWILIO_AUTH_TOKEN:
-    raise RuntimeError(
-        "Missing TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN environment variables."
-    )
-
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+client = (
+    Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+    if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN
+    else None
+)
 
 
 class CallerNameResult(BaseModel):
@@ -56,6 +55,11 @@ def lookup_caller_name(
     """
     Look up caller name for a phone number using Twilio Lookup v2.
     """
+    if client is None:
+        raise HTTPException(
+            status_code=503, detail="Twilio Lookup is not configured."
+        )
+
     try:
         result: Any = client.lookups.v2.phone_numbers(phone_number).fetch(
             fields="caller_name"
